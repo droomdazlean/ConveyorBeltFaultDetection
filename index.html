@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conveyor Belt Monitoring System | Droom Dazlean Solutions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a237e;
+      --success: #00c853;
+      --warning: #ffc107;
+      --danger: #d32f2f;
+      --dark: #0d1117;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #1a237e 0%, #4a148c 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .top-nav {
+      background: rgba(13, 17, 23, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 0;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-brand {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-logout {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn-logout:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+    }
+
+    .dashboard-container {
+      padding: 2rem 0;
+    }
+
+    .status-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      height: 100%;
+    }
+
+    .status-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .status-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .status-value {
+      font-size: 3rem;
+      font-weight: 800;
+      margin: 0.5rem 0;
+    }
+
+    .status-label {
+      font-size: 0.95rem;
+      color: #666;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .lcd-display {
+      background: #1a3a1a;
+      border: 10px solid #2a2a2a;
+      border-radius: 15px;
+      padding: 2.5rem 2rem;
+      font-family: 'Courier New', monospace;
+      color: #7fff00;
+      font-size: 1.8rem;
+      line-height: 2.5;
+      text-align: center;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7), 0 10px 40px rgba(0, 0, 0, 0.3);
+      margin-bottom: 2rem;
+      letter-spacing: 2px;
+    }
+
+    .lcd-line {
+      display: block;
+      white-space: pre;
+      font-weight: bold;
+      text-shadow: 0 0 10px #7fff00;
+    }
+
+    .control-panel {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .control-btn {
+      padding: 1.2rem;
+      border: none;
+      border-radius: 15px;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: white;
+    }
+
+    .control-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .control-btn:not(:disabled):hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-start {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .btn-stop {
+      background: linear-gradient(135deg, #f44336 0%, #c62828 100%);
+    }
+
+    .btn-emergency {
+      background: linear-gradient(135deg, #ff5722 0%, #d32f2f 100%);
+      animation: pulse-red 2s infinite;
+    }
+
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+      50% { box-shadow: 0 0 0 15px rgba(244, 67, 54, 0); }
+    }
+
+    .alert-item {
+      padding: 1.2rem;
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: start;
+      gap: 1rem;
+      border-left: 5px solid;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .alert-critical {
+      background: #ffebee;
+      border-color: #d32f2f;
+    }
+
+    .alert-warning {
+      background: #fff3e0;
+      border-color: #f57c00;
+    }
+
+    .alert-normal {
+      background: #e8f5e9;
+      border-color: #00c853;
+    }
+
+    .alert-info {
+      background: #e3f2fd;
+      border-color: #1976d2;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    .status-normal {
+      background: #e8f5e9;
+      color: #00c853;
+    }
+
+    .status-warning {
+      background: #fff3e0;
+      color: #f57c00;
+    }
+
+    .status-critical {
+      background: #ffebee;
+      color: #d32f2f;
+      animation: pulse-red 2s infinite;
+    }
+
+    .status-offline {
+      background: #f5f5f5;
+      color: #757575;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chart-container {
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .status-value { font-size: 2rem; }
+      .lcd-display { font-size: 1.3rem; padding: 1.5rem; }
+    }
+
+    .led-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      box-shadow: 0 0 10px;
+    }
+
+    .led-off {
+      background: #424242;
+      box-shadow: none;
+    }
+
+    .led-white {
+      background: #ffffff;
+      box-shadow: 0 0 15px #ffffff;
+    }
+
+    .led-orange {
+      background: #ff9800;
+      box-shadow: 0 0 15px #ff9800;
+    }
+
+    .led-red {
+      background: #f44336;
+      box-shadow: 0 0 15px #f44336;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0.2; }
+    }
+
+    .blinking {
+      animation: blink 1s infinite;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a href="#" class="nav-brand">
+        <i class="bi bi-gear-wide-connected"></i> Valterra Conveyor Belt Monitor
+      </a>
+      <div class="d-flex align-items-center gap-3">
+        <span class="text-white"><i class="bi bi-person-circle"></i> Admin</span>
+        <button class="btn-logout" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="dashboard-container">
+    <div class="container">
+      
+      <div class="alert alert-info mb-4" style="border-radius: 15px; background: white;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <h5 class="mb-1"><i class="bi bi-hdd-network-fill"></i> ESP8266 Connection</h5>
+            <p class="mb-0">IP: <strong id="espIP">Loading...</strong> | Org: <strong id="orgName">Valterra Industries</strong></p>
+          </div>
+          <span id="systemStatus" class="status-indicator status-offline">
+            <span class="status-dot" style="background: #757575;"></span>
+            Connecting...
+          </span>
+        </div>
+      </div>
+
+      <!-- LCD Display -->
+      <div class="control-panel">
+        <div class="section-title">
+          <i class="bi bi-display"></i> Live LCD Display (16x2)
+        </div>
+        <div class="lcd-display">
+          <span class="lcd-line" id="lcdLine1">INITIALIZING...  </span>
+          <span class="lcd-line" id="lcdLine2">PLEASE WAIT     </span>
+        </div>
+      </div>
+
+      <!-- Real-Time Monitoring -->
+      <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="status-card">
+            <div class="status-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+              <i class="bi bi-rulers"></i>
+            </div>
+            <div class="status-label">Belt Position</div>
+            <div class="status-value" id="distanceValue" style="color: #4facfe;">--</div>
+            <small class="text-muted" id="distanceStatus">Measuring...</small>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="status-card">
+            <div class="status-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+              <i class="bi bi-activity"></i>
+            </div>
+            <div class="status-label">Vibration</div>
+            <div class="status-value" id="vibrationValue" style="color: #f5576c;">--</div>
+            <small class="text-muted" id="vibrationStatus">Monitoring...</small>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="status-card">
+            <div class="status-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="status-label">System Health</div>
+            <div class="status-value" id="healthValue" style="font-size: 1.8rem; color: #43e97b;">NORMAL</div>
+            <small class="text-muted" id="healthStatus">All systems OK</small>
+          </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+          <div class="status-card">
+            <div class="status-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="status-label">Uptime</div>
+            <div class="status-value" id="uptimeValue" style="font-size: 1.6rem; color: #667eea;">00:00:00</div>
+            <small class="text-muted" id="lastUpdate">Last: Never</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conveyor Control -->
+      <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+          <div class="control-panel">
+            <div class="section-title">
+              <i class="bi bi-gear-wide-connected"></i> Conveyor Belt Control
+            </div>
+            <div class="row g-3">
+              <div class="col-6">
+                <button class="control-btn btn-start" id="startConveyorBtn" onclick="startConveyor()">
+                  <i class="bi bi-play-circle-fill"></i>
+                  Start Belt
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="control-btn btn-stop" id="stopConveyorBtn" onclick="stopConveyor()" disabled>
+                  <i class="bi bi-stop-circle-fill"></i>
+                  Stop Belt
+                </button>
+              </div>
+              <div class="col-12">
+                <button class="control-btn btn-emergency" onclick="emergencyStop()">
+                  <i class="bi bi-exclamation-triangle-fill"></i>
+                  EMERGENCY STOP
+                </button>
+              </div>
+            </div>
+            <div class="mt-3">
+              <div class="alert alert-info mb-0" style="font-size: 0.9rem;">
+                <i class="bi bi-info-circle-fill"></i> <strong>Safety Notice:</strong> Belt will auto-stop if misalignment detected. Normal position: 3-7cm
+              </div>
+            </div>
+            <div class="mt-3">
+              <h6 class="mb-2">Conveyor Status:</h6>
+              <span id="conveyorStatus" class="badge bg-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                <i class="bi bi-circle-fill"></i> STOPPED
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+          <div class="control-panel">
+            <div class="section-title">
+              <i class="bi bi-bell-fill"></i> Alarm & Indicator Control
+            </div>
+            <div class="row g-3">
+              <div class="col-6">
+                <button class="control-btn" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);" onclick="silenceAlarm()">
+                  <i class="bi bi-volume-mute-fill"></i>
+                  Silence Alarm
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="control-btn" style="background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);" onclick="testAlarm()">
+                  <i class="bi bi-megaphone-fill"></i>
+                  Test Alarm
+                </button>
+              </div>
+            </div>
+            <div class="mt-3">
+              <h6 class="mb-2">Current Indicators:</h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <span class="badge" id="whiteLedStatus" style="background: #e0e0e0; color: #424242; padding: 0.5rem 1rem;">
+                  <span class="led-indicator led-off" id="whiteLedLight"></span> Normal: OFF
+                </span>
+                <span class="badge" id="orangeLedStatus" style="background: #e0e0e0; color: #424242; padding: 0.5rem 1rem;">
+                  <span class="led-indicator led-off" id="orangeLedLight"></span> Warning: OFF
+                </span>
+                <span class="badge" id="redLedStatus" style="background: #e0e0e0; color: #424242; padding: 0.5rem 1rem;">
+                  <span class="led-indicator led-off" id="redLedLight"></span> Critical: OFF
+                </span>
+              </div>
+            </div>
+            <div class="mt-3">
+              <h6 class="mb-2">Alarm Status:</h6>
+              <span id="alarmStatus" class="badge bg-secondary" style="padding: 0.5rem 1rem;">
+                <i class="bi bi-volume-mute-fill"></i> SILENT
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+          <div class="chart-container">
+            <div class="section-title">
+              <i class="bi bi-graph-up"></i> Belt Position History (Last 50 Readings)
+            </div>
+            <canvas id="distanceChart" ></canvas>
+          </div>
+        </div>
+        <div class="col-lg-6 mb-3">
+          <div class="chart-container">
+            <div class="section-title">
+              <i class="bi bi-activity"></i> Vibration Analysis (Last 50 Readings)
+            </div>
+            <canvas id="vibrationChart" ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Alerts -->
+      <div class="control-panel">
+        <div class="section-title">
+          <i class="bi bi-exclamation-triangle-fill"></i> System Alerts & Events
+        </div>
+        <div id="alertContainer" style="max-height: 400px; overflow-y: auto;">
+          <div class="alert-item alert-info">
+            <i class="bi bi-info-circle-fill" style="font-size: 1.5rem; color: #1976d2;"></i>
+            <div>
+              <strong>System Initialized</strong>
+              <div style="font-size: 0.9rem; color: #666;">Monitoring started successfully</div>
+              <small class="text-muted" id="initTime"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center text-white mt-4 pb-4">
+        <p>&copy; 2025 Droom Dazlean Solutions | University of Zimbabwe | Musvosvi Shaun T (R228982S)</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    let ESP_IP = '';
+    let distanceChart, vibrationChart;
+    let distanceHistory = [];
+    let vibrationHistory = [];
+    let timeLabels = [];
+    let maxDataPoints = 50;
+    let updateInterval;
+    let startTime = Date.now();
+    let lastDistance = null;
+    let lastVibration = null;
+    let conveyorRunning = false;
+    let alarmSilenced = false;
+    let consecutiveErrors = 0;
+    let previousDistance = null;
+    let rapidChangeThreshold = 3; // 3cm change in 1 second is rapid
+    let alertCount = 0;
+    let maxAlerts = 50;
+
+    // Check auth and load config
+    window.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      loadConfig();
+      initCharts();
+      document.getElementById('initTime').textContent = new Date().toLocaleString();
+      startMonitoring();
+    });
+
+    function checkAuth() {
+      const userLogin = localStorage.getItem('userLogin');
+      if (userLogin !== 'admin') {
+        alert('⛔ Unauthorized Access! Please login first.');
+        window.location.href = 'https://www.google.com/search?q=droom+dazlean+solutions';
+        return;
+      }
+    }
+
+    function loadConfig() {
+      const savedIP = localStorage.getItem('esp8266IPAddress');
+      
+      if (!savedIP) {
+        alert('⚠️ ESP8266 IP Address not configured!\n\nPlease configure the system first.');
+        window.location.href = 'https://www.google.com/search?q=droom+dazlean+solutions';
+        return;
+      }
+
+      ESP_IP = savedIP;
+      document.getElementById('espIP').textContent = ESP_IP;
+    }
+
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('userLogin');
+        window.location.href = 'https://www.google.com/search?q=droom+dazlean+solutions';
+      }
+    }
+
+    // API Call with error handling
+    async function callAPI(endpoint) {
+      try {
+        const response = await fetch(`http://${ESP_IP}${endpoint}`, {
+          method: 'GET',
+          mode: 'cors',
+          cache: 'no-cache'
+        });
+        
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const data = await response.text();
+        consecutiveErrors = 0;
+        return data.trim();
+      } catch (error) {
+        consecutiveErrors++;
+        console.error(`API Error ${endpoint}:`, error);
+        
+        if (consecutiveErrors >= 5) {
+          updateSystemStatus('offline');
+          if (alertCount === 0 || consecutiveErrors % 10 === 0) {
+            addAlert('critical', 'Connection Lost', `Unable to reach ESP8266 at ${ESP_IP}`);
+          }
+        }
+        return null;
+      }
+    }
+
+    // Update LCD Display
+    function updateLCDDisplay(line1, line2) {
+      // Ensure lines are max 16 characters
+      line1 = line1.substring(0, 16).padEnd(16, ' ');
+      line2 = line2.substring(0, 16).padEnd(16, ' ');
+      
+      document.getElementById('lcdLine1').textContent = line1;
+      document.getElementById('lcdLine2').textContent = line2;
+      
+      // Send to physical LCD
+      callAPI(`/displayOnLCD?line1=${encodeURIComponent(line1)}&line2=${encodeURIComponent(line2)}`);
+    }
+
+    // Update system status indicator
+    function updateSystemStatus(status) {
+      const statusEl = document.getElementById('systemStatus');
+      
+      if (status === 'normal') {
+        statusEl.className = 'status-indicator status-normal';
+        statusEl.innerHTML = '<span class="status-dot" style="background: #00c853;"></span> System Normal';
+      } else if (status === 'warning') {
+        statusEl.className = 'status-indicator status-warning';
+        statusEl.innerHTML = '<span class="status-dot" style="background: #f57c00;"></span> Warning State';
+      } else if (status === 'critical') {
+        statusEl.className = 'status-indicator status-critical';
+        statusEl.innerHTML = '<span class="status-dot" style="background: #d32f2f;"></span> Critical Alert';
+      } else {
+        statusEl.className = 'status-indicator status-offline';
+        statusEl.innerHTML = '<span class="status-dot" style="background: #757575;"></span> System Offline';
+      }
+    }
+
+    // Initialize Charts
+    function initCharts() {
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        animation: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: { display: true, grid: { display: false } },
+          y: { display: true, beginAtZero: true }
+        }
+      };
+
+      const distanceCtx = document.getElementById('distanceChart').getContext('2d');
+      distanceChart = new Chart(distanceCtx, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'Belt Position (cm)',
+            data: distanceHistory,
+            borderColor: '#4facfe',
+            backgroundColor: 'rgba(79, 172, 254, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: { 
+              ...commonOptions.scales.y,
+              min: 0,
+              max: 20,
+              ticks: { callback: value => value + ' cm' }
+            }
+          }
+        }
+      });
+
+      const vibrationCtx = document.getElementById('vibrationChart').getContext('2d');
+      vibrationChart = new Chart(vibrationCtx, {
+        type: 'line',
+        data: {
+          labels: timeLabels,
+          datasets: [{
+            label: 'Vibration (g)',
+            data: vibrationHistory,
+            borderColor: '#f5576c',
+            backgroundColor: 'rgba(245, 87, 108, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          ...commonOptions,
+          scales: {
+            ...commonOptions.scales,
+            y: { 
+              ...commonOptions.scales.y,
+              min: 0,
+              max: 2,
+              ticks: { callback: value => value.toFixed(2) + ' g' }
+            }
+          }
+        }
+      });
+    }
+
+    // Update Chart
+    function updateChart(chart, dataArray, newValue) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString();
+      
+      if (dataArray.length >= maxDataPoints) {
+        dataArray.shift();
+        chart.data.labels.shift();
+      }
+      
+      dataArray.push(newValue);
+      chart.data.labels.push(timeStr);
+      chart.update('none');
+    }
+
+    // Start monitoring loop
+    function startMonitoring() {
+      updateSensorData();
+      updateUptime();
+      
+      updateInterval = setInterval(() => {
+        updateSensorData();
+      }, 500); // Update every 500ms for faster response
+
+      setInterval(updateUptime, 1000);
+    }
+
+    // Update sensor data
+    async function updateSensorData() {
+      const distance = await callAPI('/getDistanceInCm');
+      const vibration = await callAPI('/getVibrationLevel');
+
+      if (distance !== null && distance !== '-1') {
+        const distValue = parseFloat(distance);
+        
+        if (!isNaN(distValue) && distValue >= 0) {
+          lastDistance = distValue;
+          
+          document.getElementById('distanceValue').textContent = distValue.toFixed(1) + ' cm';
+          document.getElementById('lastUpdate').textContent = 'Last: ' + new Date().toLocaleTimeString();
+          
+          // Check for rapid changes
+          if (previousDistance !== null) {
+            checkRapidChanges(distValue, previousDistance);
+          }
+          previousDistance = distValue;
+          
+          // Analyze belt position and take actions
+          analyzeBeltPosition(distValue);
+          
+          // Update chart
+          updateChart(distanceChart, distanceHistory, distValue);
+        }
+      }
+
+      if (vibration !== null && vibration !== '-1') {
+        const vibValue = parseFloat(vibration);
+        
+        if (!isNaN(vibValue) && vibValue >= 0) {
+          lastVibration = vibValue;
+          
+          document.getElementById('vibrationValue').textContent = vibValue.toFixed(2) + ' g';
+          
+          // Analyze vibration
+          analyzeVibration(vibValue);
+          
+          // Update chart
+          updateChart(vibrationChart, vibrationHistory, vibValue);
+        }
+      }
+    }
+
+    // Check for rapid changes
+    function checkRapidChanges(currentDist, previousDist) {
+      const change = Math.abs(currentDist - previousDist);
+      
+      if (change >= rapidChangeThreshold) {
+        // Rapid change detected - Orange LED steady, Buzzer beeping
+        callAPI('/stopWhiteLed');
+        callAPI('/stopWhiteLedBeeping');
+        callAPI('/startOrangeLed');
+        callAPI('/stopOrangeLedBeeping');
+        callAPI('/stopRedLed');
+        callAPI('/stopRedLedBeeping');
+        
+        if (!alarmSilenced) {
+          callAPI('/startBuzzerBeeping');
+        }
+        
+        updateLCDDisplay('RAPID CHANGE!', `${change.toFixed(1)}cm shift`);
+        updateIndicator('whiteLedStatus', 'Normal: OFF', '#9e9e9e', 'off');
+        updateIndicator('orangeLedStatus', 'Warning: ON', '#ff9800', 'orange');
+        updateIndicator('redLedStatus', 'Critical: OFF', '#9e9e9e', 'off');
+        
+        addAlert('warning', 'Rapid Position Change Detected', `Belt shifted ${change.toFixed(1)}cm suddenly - Check for obstructions!`);
+        
+        // Auto-stop if conveyor is running and change is severe
+        if (conveyorRunning && change >= 5) {
+          addAlert('critical', 'Auto-Stop: Severe Rapid Change', `Belt shifted ${change.toFixed(1)}cm - Conveyor stopped for safety`);
+          stopConveyor();
+        }
+      }
+    }
+
+    // Analyze belt position and control indicators
+    function analyzeBeltPosition(distance) {
+      let status = '';
+      let health = 'NORMAL';
+      
+      if (distance >= 3 && distance <= 7) {
+        // Normal position - White LED steady
+        status = 'Normal Position';
+        document.getElementById('distanceStatus').textContent = '✓ Optimal';
+        document.getElementById('distanceStatus').style.color = '#00c853';
+        
+        callAPI('/startWhiteLed');
+        callAPI('/stopWhiteLedBeeping');
+        callAPI('/stopOrangeLed');
+        callAPI('/stopOrangeLedBeeping');
+        callAPI('/stopRedLed');
+        callAPI('/stopRedLedBeeping');
+        callAPI('/stopBuzzer');
+        callAPI('/stopBuzzerBeeping');
+        
+        updateLCDDisplay('Belt Position:', `Normal ${distance.toFixed(1)}cm`);
+        updateIndicator('whiteLedStatus', 'Normal: ON', '#4caf50', 'white');
+        updateIndicator('orangeLedStatus', 'Warning: OFF', '#9e9e9e', 'off');
+        updateIndicator('redLedStatus', 'Critical: OFF', '#9e9e9e', 'off');
+        
+        updateSystemStatus('normal');
+        alarmSilenced = false;
+        updateAlarmStatus(false);
+        
+      } else if (distance > 7 && distance <= 11) {
+        // Moderate deviation - White LED blinking
+        status = 'Moderate Deviation';
+        health = 'WARNING';
+        document.getElementById('distanceStatus').textContent = '⚠ Deviation';
+        document.getElementById('distanceStatus').style.color = '#f57c00';
+        
+        callAPI('/stopWhiteLed');
+        callAPI('/startWhiteLedBeeping');
+        callAPI('/stopOrangeLed');
+        callAPI('/stopOrangeLedBeeping');
+        callAPI('/stopRedLed');
+        callAPI('/stopRedLedBeeping');
+        callAPI('/stopBuzzer');
+        callAPI('/stopBuzzerBeeping');
+        
+        updateLCDDisplay('CAUTION!', `Pos: ${distance.toFixed(1)}cm`);
+        updateIndicator('whiteLedStatus', 'Normal: BLINK', '#ffc107', 'white-blink');
+        updateIndicator('orangeLedStatus', 'Warning: OFF', '#9e9e9e', 'off');
+        updateIndicator('redLedStatus', 'Critical: OFF', '#9e9e9e', 'off');
+        
+        updateSystemStatus('warning');
+        
+        if (alertCount < maxAlerts) {
+          addAlert('warning', 'Belt Position Deviation', `Belt at ${distance.toFixed(1)}cm - Outside optimal range (3-7cm)`);
+        }
+        
+      } else if (distance > 11 && distance <= 15) {
+        // Critical deviation - Red LED blinking + Buzzer steady
+        status = 'Critical Deviation';
+        health = 'CRITICAL';
+        document.getElementById('distanceStatus').textContent = '🔴 Critical';
+        document.getElementById('distanceStatus').style.color = '#d32f2f';
+        
+        callAPI('/stopWhiteLed');
+        callAPI('/stopWhiteLedBeeping');
+        callAPI('/stopOrangeLed');
+        callAPI('/stopOrangeLedBeeping');
+        callAPI('/startRedLedBeeping');
+        
+        if (!alarmSilenced) {
+          callAPI('/startBuzzer');
+          updateAlarmStatus(true);
+        }
+        
+        updateLCDDisplay('CRITICAL!', `Belt: ${distance.toFixed(1)}cm`);
+        updateIndicator('whiteLedStatus', 'Normal: OFF', '#9e9e9e', 'off');
+        updateIndicator('orangeLedStatus', 'Warning: OFF', '#9e9e9e', 'off');
+        updateIndicator('redLedStatus', 'Critical: BLINK', '#f44336', 'red-blink');
+        
+        updateSystemStatus('critical');
+        
+        if (alertCount < maxAlerts) {
+          addAlert('critical', 'Critical Belt Misalignment', `Belt at ${distance.toFixed(1)}cm - Immediate action required!`);
+        }
+        
+        // Auto-stop conveyor if running
+        if (conveyorRunning) {
+          addAlert('critical', 'Auto-Stop Activated', `Conveyor stopped due to critical misalignment (${distance.toFixed(1)}cm)`);
+          stopConveyor();
+        }
+        
+      } else {
+        // Out of range
+        status = 'Out of Range';
+        health = 'ERROR';
+        document.getElementById('distanceStatus').textContent = '⚠ Error';
+        document.getElementById('distanceStatus').style.color = '#9e9e9e';
+        
+        updateLCDDisplay('SENSOR ERROR', 'Check position');
+        updateSystemStatus('critical');
+      }
+      
+      document.getElementById('healthValue').textContent = health;
+      document.getElementById('healthValue').style.color = health === 'NORMAL' ? '#43e97b' : 
+                                                           health === 'WARNING' ? '#ffc107' : '#f44336';
+      document.getElementById('healthStatus').textContent = status;
+    }
+
+    // Analyze vibration levels
+    function analyzeVibration(vibration) {
+      if (vibration < 0.5) {
+        document.getElementById('vibrationStatus').textContent = '✓ Low';
+        document.getElementById('vibrationStatus').style.color = '#00c853';
+      } else if (vibration < 1.0) {
+        document.getElementById('vibrationStatus').textContent = '⚠ Moderate';
+        document.getElementById('vibrationStatus').style.color = '#ffc107';
+      } else {
+        document.getElementById('vibrationStatus').textContent = '🔴 High';
+        document.getElementById('vibrationStatus').style.color = '#d32f2f';
+        
+        if (alertCount < maxAlerts && Math.random() > 0.95) { // Occasional alerts for high vibration
+          addAlert('warning', 'High Vibration Detected', `Vibration level: ${vibration.toFixed(2)}g - Check belt tension`);
+        }
+      }
+    }
+
+    // Update indicator badge
+    function updateIndicator(elementId, text, color, ledType) {
+      const element = document.getElementById(elementId);
+      element.style.background = color === '#9e9e9e' ? '#e0e0e0' : color;
+      element.style.color = color === '#9e9e9e' ? '#424242' : 'white';
+      element.innerHTML = `<span class="led-indicator ${getLedClass(ledType)}" id="${elementId}Light"></span> ${text}`;
+    }
+
+    // Get LED class
+    function getLedClass(ledType) {
+      switch(ledType) {
+        case 'white': return 'led-white';
+        case 'white-blink': return 'led-white blinking';
+        case 'orange': return 'led-orange';
+        case 'orange-blink': return 'led-orange blinking';
+        case 'red': return 'led-red';
+        case 'red-blink': return 'led-red blinking';
+        default: return 'led-off';
+      }
+    }
+
+    // Update alarm status
+    function updateAlarmStatus(active) {
+      const alarmEl = document.getElementById('alarmStatus');
+      if (active) {
+        alarmEl.className = 'badge bg-danger';
+        alarmEl.innerHTML = '<i class="bi bi-megaphone-fill"></i> ALARM ACTIVE';
+      } else {
+        alarmEl.className = 'badge bg-secondary';
+        alarmEl.innerHTML = '<i class="bi bi-volume-mute-fill"></i> SILENT';
+      }
+    }
+
+    // Update uptime
+    function updateUptime() {
+      const elapsed = Date.now() - startTime;
+      const hours = Math.floor(elapsed / 3600000);
+      const minutes = Math.floor((elapsed % 3600000) / 60000);
+      const seconds = Math.floor((elapsed % 60000) / 1000);
+      
+      document.getElementById('uptimeValue').textContent = 
+        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Add alert to container
+    function addAlert(type, title, message) {
+      if (alertCount >= maxAlerts) return;
+      
+      const container = document.getElementById('alertContainer');
+      const alertDiv = document.createElement('div');
+      
+      let alertClass = 'alert-info';
+      let iconClass = 'bi-info-circle-fill';
+      let iconColor = '#1976d2';
+      
+      if (type === 'critical') {
+        alertClass = 'alert-critical';
+        iconClass = 'bi-exclamation-triangle-fill';
+        iconColor = '#d32f2f';
+      } else if (type === 'warning') {
+        alertClass = 'alert-warning';
+        iconClass = 'bi-exclamation-circle-fill';
+        iconColor = '#f57c00';
+      } else if (type === 'normal') {
+        alertClass = 'alert-normal';
+        iconClass = 'bi-check-circle-fill';
+        iconColor = '#00c853';
+      }
+      
+      alertDiv.className = `alert-item ${alertClass}`;
+      alertDiv.innerHTML = `
+        <i class="bi ${iconClass}" style="font-size: 1.5rem; color: ${iconColor};"></i>
+        <div>
+          <strong>${title}</strong>
+          <div style="font-size: 0.9rem; color: #666;">${message}</div>
+          <small class="text-muted">${new Date().toLocaleString()}</small>
+        </div>
+      `;
+      
+      container.insertBefore(alertDiv, container.firstChild);
+      alertCount++;
+      
+      // Keep only latest 50 alerts
+      while (container.children.length > maxAlerts) {
+        container.removeChild(container.lastChild);
+      }
+    }
+
+    // Start Conveyor
+    async function startConveyor() {
+      // Check if belt is in normal position
+      if (lastDistance === null) {
+        alert('⚠️ Unable to determine belt position. Please wait for sensor reading.');
+        return;
+      }
+      
+      if (lastDistance < 3 || lastDistance > 7) {
+        alert(`⛔ Cannot Start Conveyor!\n\nBelt is not in normal position (${lastDistance.toFixed(1)}cm).\nNormal range: 3-7cm\n\nPlease adjust belt position before starting.`);
+        addAlert('warning', 'Start Prevented', `Belt position ${lastDistance.toFixed(1)}cm is outside safe range`);
+        return;
+      }
+      
+      const result = await callAPI('/startServo');
+      
+      if (result === '1') {
+        conveyorRunning = true;
+        document.getElementById('startConveyorBtn').disabled = true;
+        document.getElementById('stopConveyorBtn').disabled = false;
+        
+        const statusEl = document.getElementById('conveyorStatus');
+        statusEl.className = 'badge bg-success';
+        statusEl.innerHTML = '<i class="bi bi-circle-fill"></i> RUNNING';
+        
+        updateLCDDisplay('Conveyor:', 'RUNNING');
+        addAlert('normal', 'Conveyor Started', 'Belt operation initiated successfully');
+      } else {
+        alert('❌ Failed to start conveyor. Check ESP8266 connection.');
+      }
+    }
+
+    // Stop Conveyor
+    async function stopConveyor() {
+      const result = await callAPI('/stopServo');
+      
+      if (result === '1' || result === null) {
+        conveyorRunning = false;
+        document.getElementById('startConveyorBtn').disabled = false;
+        document.getElementById('stopConveyorBtn').disabled = true;
+        
+        const statusEl = document.getElementById('conveyorStatus');
+        statusEl.className = 'badge bg-secondary';
+        statusEl.innerHTML = '<i class="bi bi-circle-fill"></i> STOPPED';
+        
+        updateLCDDisplay('Conveyor:', 'STOPPED');
+        addAlert('info', 'Conveyor Stopped', 'Belt operation halted');
+      }
+    }
+
+    // Emergency Stop
+    async function emergencyStop() {
+      if (confirm('⚠️ EMERGENCY STOP\n\nThis will immediately halt all operations!\n\nProceed?')) {
+        await callAPI('/stopServo');
+        await callAPI('/startRedLedBeeping');
+        await callAPI('/startBuzzer');
+        
+        conveyorRunning = false;
+        document.getElementById('startConveyorBtn').disabled = false;
+        document.getElementById('stopConveyorBtn').disabled = true;
+        
+        const statusEl = document.getElementById('conveyorStatus');
+        statusEl.className = 'badge bg-danger';
+        statusEl.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> EMERGENCY STOP';
+        
+        updateLCDDisplay('EMERGENCY STOP', 'System Halted');
+        addAlert('critical', 'EMERGENCY STOP ACTIVATED', 'All operations halted by operator');
+        
+        setTimeout(() => {
+          statusEl.className = 'badge bg-secondary';
+          statusEl.innerHTML = '<i class="bi bi-circle-fill"></i> STOPPED';
+        }, 5000);
+      }
+    }
+
+    // Silence Alarm
+    async function silenceAlarm() {
+      alarmSilenced = true;
+      await callAPI('/stopBuzzer');
+      await callAPI('/stopBuzzerBeeping');
+      updateAlarmStatus(false);
+      addAlert('info', 'Alarm Silenced', 'Buzzer has been muted');
+      
+      // Reset silence after 30 seconds
+      setTimeout(() => {
+        alarmSilenced = false;
+        addAlert('info', 'Alarm Re-enabled', 'Buzzer will sound on critical conditions');
+      }, 30000);
+    }
+
+    // Test Alarm
+    async function testAlarm() {
+      addAlert('info', 'Alarm Test', 'Testing all indicators and buzzer');
+      
+      // Test sequence
+      await callAPI('/startWhiteLed');
+      updateLCDDisplay('Testing:', 'White LED');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await callAPI('/stopWhiteLed');
+      
+      await callAPI('/startOrangeLed');
+      updateLCDDisplay('Testing:', 'Orange LED');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await callAPI('/stopOrangeLed');
+      
+      await callAPI('/startRedLed');
+      updateLCDDisplay('Testing:', 'Red LED');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await callAPI('/stopRedLed');
+      
+      await callAPI('/startBuzzer');
+      updateLCDDisplay('Testing:', 'Buzzer');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await callAPI('/stopBuzzer');
+      
+      updateLCDDisplay('Test Complete', 'All OK');
+      addAlert('normal', 'Test Complete', 'All indicators functioning properly');
+      
+      // Return to normal state
+      setTimeout(() => {
+        if (lastDistance !== null) {
+          analyzeBeltPosition(lastDistance);
+        }
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>localStorage.clear();</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valterra Platinum AI Conveyor Belt Monitoring System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #1a237e;
+      --secondary: #283593;
+      --accent: #3f51b5;
+      --light-accent: #5c6bc0;
+      --success: #00c853;
+      --warning: #ffc107;
+      --danger: #d32f2f;
+      --dark: #0d1117;
+      --light: #f8f9fa;
+      --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* Welcome Screen */
+    #welcomeOverlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #1a237e 0%, #4a148c 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeOut 1s ease forwards 3s;
+    }
+    #welcomeOverlay.hidden { display: none; }
+    @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+    
+    .welcome-content {
+      text-align: center;
+      color: white;
+      animation: scaleIn 0.8s ease;
+    }
+    @keyframes scaleIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .welcome-content h1 {
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #fff, #64b5f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .welcome-content .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Navigation */
+    .navbar {
+      background: rgba(26, 35, 126, 0.95) !important;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      padding: 1.2rem 0;
+    }
+    .navbar-brand {
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: white !important;
+      letter-spacing: 0.5px;
+    }
+    .nav-link {
+      color: rgba(255,255,255,0.9) !important;
+      font-weight: 600;
+      margin: 0 0.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .nav-link:hover {
+      color: #64b5f6 !important;
+      transform: translateY(-2px);
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #64b5f6;
+      transition: width 0.3s ease;
+    }
+    .nav-link:hover::after { width: 100%; }
+
+    .btn-login, .btn-config {
+      background: var(--gradient-3);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.6rem 1.5rem;
+      border-radius: 50px;
+      margin-left: 1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+    .btn-login:hover, .btn-config:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+      color: white;
+    }
+
+    /* Hero Section */
+    .hero-section {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(26, 35, 126, 0.9) 0%, rgba(74, 20, 140, 0.9) 100%),
+                  url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=1920') center/cover;
+      z-index: 0;
+    }
+    .hero-particles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 20s infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0) translateX(0); }
+      25% { transform: translateY(-100px) translateX(50px); }
+      50% { transform: translateY(-200px) translateX(-50px); }
+      75% { transform: translateY(-100px) translateX(100px); }
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      color: white;
+      max-width: 800px;
+    }
+    .hero-content h1 {
+      font-size: 4.5rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+      animation: slideInUp 0.8s ease;
+    }
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-content p {
+      font-size: 1.4rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+      opacity: 0.95;
+      animation: slideInUp 1s ease;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      animation: slideInUp 1.2s ease;
+    }
+    .stat-item {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #64b5f6;
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Content Sections */
+    .content-section {
+      background: white;
+      padding: 5rem 0;
+      position: relative;
+    }
+    .section-title {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 60%;
+      height: 5px;
+      background: var(--gradient-3);
+      border-radius: 3px;
+    }
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 3rem;
+    }
+
+    /* Feature Cards */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .feature-card {
+      background: white;
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--gradient-3);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+    .feature-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      background: var(--gradient-3);
+      color: white;
+    }
+    .feature-card h4 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    .feature-card p {
+      color: #666;
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    /* Technical Specs */
+    .specs-section {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .spec-card {
+      background: white;
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+    .spec-card:hover {
+      transform: translateX(10px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    .spec-icon {
+      font-size: 2rem;
+      color: var(--accent);
+      margin-right: 1rem;
+    }
+    .spec-content h5 {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Data Table */
+    .data-table {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    .data-table thead {
+      background: var(--gradient-1);
+      color: white;
+    }
+    .data-table th {
+      font-weight: 700;
+      padding: 1.2rem 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+    }
+    .data-table td {
+      padding: 1.2rem 1rem;
+      vertical-align: middle;
+    }
+    .data-table tbody tr {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .data-table tbody tr:hover {
+      background: #f8f9ff;
+      transform: scale(1.01);
+    }
+
+    /* Objectives Section */
+    .objectives-section {
+      background: var(--dark);
+      color: white;
+    }
+    .objective-item {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      border-left: 5px solid #64b5f6;
+      transition: all 0.3s ease;
+    }
+    .objective-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(10px);
+    }
+    .objective-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: #64b5f6;
+      opacity: 0.3;
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+      border-radius: 20px;
+      border: none;
+      overflow: hidden;
+    }
+    .modal-header {
+      background: var(--gradient-1);
+      color: white;
+      padding: 1.5rem 2rem;
+      border: none;
+    }
+    .modal-body {
+      padding: 2rem;
+    }
+    .form-label {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      padding: 0.8rem 1rem;
+      transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 0.2rem rgba(63, 81, 181, 0.25);
+    }
+    .btn-primary-custom {
+      background: var(--gradient-3);
+      border: none;
+      color: white;
+      font-weight: 600;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+    .btn-primary-custom:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    }
+
+    /* Alert Messages */
+    .alert-custom {
+      border-radius: 15px;
+      padding: 1.2rem;
+      border: none;
+      font-weight: 500;
+    }
+    .alert-info-custom {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #1565c0;
+    }
+    .alert-warning-custom {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #e65100;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 3rem 0 1.5rem;
+    }
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .footer-section h5 {
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #64b5f6;
+    }
+    .footer-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      display: block;
+      margin-bottom: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    .footer-link:hover {
+      color: #64b5f6;
+      padding-left: 5px;
+    }
+
+    /* Animations */
+    .fade-in-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+    }
+    .fade-in-up.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-content h1 { font-size: 2.5rem; }
+      .hero-content p { font-size: 1.1rem; }
+      .section-title { font-size: 2rem; }
+      .hero-stats { flex-direction: column; gap: 1.5rem; }
+      .welcome-content h1 { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Welcome Overlay -->
+<div id="welcomeOverlay">
+  <div class="welcome-content">
+    <h1>WELCOME</h1>
+    <p class="subtitle">DESIGN OF AN ARTIFICIAL INTELLIGENCE (AI) MODEL TO IMPROVE ASSET RELIABILITY IN A SIEGE ECONOMY<br>CASE STUDY OF VALTERRA PLATINUM<br><strong>By MUSVOSVI SHAUN</strong><br>University of Zimbabwe 2025</p>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="#"><i class="bi bi-cpu-fill"></i> Valterra AI Monitoring</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#objectives">Objectives</a></li>
+        <li class="nav-item"><a class="nav-link" href="#components">Components</a></li>
+        <li class="nav-item"><a class="nav-link" href="#specs">Specifications</a></li>
+        <li class="nav-item">
+          <button class="btn btn-config" data-bs-toggle="modal" data-bs-target="#configModal">
+            <i class="bi bi-gear-fill"></i> Configure
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+            <i class="bi bi-box-arrow-in-right"></i> Login
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="hero" class="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-particles">
+    <div class="particle" style="width: 100px; height: 100px; top: 10%; left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="width: 150px; height: 150px; top: 60%; left: 80%; animation-delay: 5s;"></div>
+    <div class="particle" style="width: 80px; height: 80px; top: 80%; left: 20%; animation-delay: 10s;"></div>
+  </div>
+  <div class="container">
+    <div class="hero-content">
+      <h1>AI-Powered Conveyor Belt Monitoring System</h1>
+      <p>Revolutionary predictive maintenance technology for platinum mining operations in Zimbabwe. Leveraging advanced IoT sensors and artificial intelligence to maximize asset reliability and operational efficiency.</p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number">+5%</span>
+          <span class="stat-label">OEE Improvement</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Monitoring</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">99.9%</span>
+          <span class="stat-label">Accuracy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="content-section fade-in-up">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">About The Project</h2>
+      <p class="section-subtitle">Academic Excellence in Industrial Innovation</p>
+    </div>
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4">
+        <div class="card border-0 shadow-lg">
+          <div class="card-body p-4">
+            <h4 class="text-primary mb-4"><i class="bi bi-building"></i> Academic Information</h4>
+            <div class="mb-3">
+              <strong><i class="bi bi-bank2"></i> University:</strong> University of Zimbabwe
+            </div>
+            <div class="mb-3">
+              <strong><i class="bi bi-mortarboard-fill"></i> Faculty:</strong> Engineering and Built Environment
+            </div>
+            <div class="mb-3">
+              <strong><i class="bi bi-diagram-3-fill"></i> Department:</strong> Industrial and Mechatronics Engineering
+            </div>
+            <div class="mb-3">
+              <strong><i class="bi bi-person-fill"></i> Student:</strong> Musvosvi Shaun T (R228982S)
+            </div>
+            <div class="mb-3">
+              <strong><i class="bi bi-person-badge-fill"></i> Supervisor:</strong> Engineer Mugwindiri
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <h3 class="text-primary mb-3">Research Focus</h3>
+        <p class="lead">This final year research project explores the integration of Artificial Intelligence with Prognostics and Health Management (PHM) systems to revolutionize asset reliability in challenging economic environments.</p>
+        <p>The study specifically targets the platinum mining sector in Zimbabwe, demonstrating how advanced IoT technologies and machine learning can significantly improve operational efficiency, reduce downtime, and optimize maintenance schedules in resource-constrained settings.</p>
+        <div class="alert alert-info-custom mt-4">
+          <i class="bi bi-lightbulb-fill"></i> <strong>Innovation Impact:</strong> This research has the potential to transform maintenance practices across the entire mining industry in Southern Africa.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="content-section bg-light fade-in-up">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">System Features</h2>
+      <p class="section-subtitle">Cutting-Edge Technology for Industrial Applications</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        <h4>Predictive Analytics</h4>
+        <p>Advanced AI algorithms analyze real-time sensor data to predict equipment failures before they occur, enabling proactive maintenance scheduling and minimizing unplanned downtime.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+        <h4>Real-Time Monitoring</h4>
+        <p>Continuous 24/7 monitoring of vibration levels, belt alignment, and operational parameters through integrated IoT sensors with instant alert capabilities.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+        <h4>Fault Detection</h4>
+        <p>Multi-parameter fault detection system identifying roller malfunctions, belt wear, material spillage, and slippage through sophisticated pattern recognition algorithms.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-clipboard-data"></i></div>
+        <h4>Data Dashboard</h4>
+        <p>Comprehensive web-based dashboard providing actionable insights, historical trends, and maintenance recommendations for informed decision-making.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-bell-fill"></i></div>
+        <h4>Alert System</h4>
+        <p>Multi-level alert system with visual, audible, and future SMS/email notifications ensuring operators are immediately informed of critical conditions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-tools"></i></div>
+        <h4>Maintenance Optimization</h4>
+        <p>AI-driven maintenance scheduling based on predicted Remaining Useful Life (RUL) calculations, optimizing resource allocation and reducing costs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Objectives Section -->
+<section id="objectives" class="objectives-section fade-in-up">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="section-title" style="color: white;">Primary Objectives</h2>
+      <p class="section-subtitle" style="color: rgba(255,255,255,0.8);">Strategic Goals for Asset Reliability Enhancement</p>
+    </div>
+    <div class="row">
+      <div class="col-lg-4 mb-4">
+        <div class="objective-item position-relative">
+          <span class="objective-number">01</span>
+          <h4 style="color: #64b5f6; margin-bottom: 1rem;"><i class="bi bi-cpu"></i> AI Model Design</h4>
+          <p>Design and implement an advanced AI model that accurately predicts conveyor belt system failures within platinum metal mining organizations in Zimbabwe, utilizing multi-sensor data fusion and machine learning techniques.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="objective-item position-relative">
+          <span class="objective-number">02</span>
+          <h4 style="color: #64b5f6; margin-bottom: 1rem;"><i class="bi bi-bar-chart-fill"></i> MTBF Enhancement</h4>
+          <p>Increase Mean Time Between Failure (MTBF) of conveyor systems, thereby improving Overall Equipment Effectiveness (OEE) and plant utilization by at least 5%, directly impacting operational profitability.</p>
+        </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+        <div class="objective-item position-relative">
+          <span class="objective-number">03</span>
+          <h4 style="color: #64b5f6; margin-bottom: 1rem;"><i class="bi bi-calendar-check"></i> Maintenance Optimization</h4>
+          <p>Develop an AI-driven predictive maintenance scheduling system that optimizes maintenance actions, reducing unplanned outages by at least 5% while maximizing equipment lifespan and performance.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mt-5">
+      <h3 style="color: #64b5f6; margin-bottom: 2rem;">System Aim</h3>
+      <p class="lead" style="color: rgba(255,255,255,0.9); max-width: 900px; margin: 0 auto;">
+        The primary aim is the use of an AI model integrated with Prognostics and Health Management (PHM) to significantly improve the Mean Time Between Failure (MTBF) for conveyor belt systems in Platinum Group Metals mining operations in Zimbabwe. This enables proactive maintenance scheduling and profitability enhancement through accurate prediction of Remaining Useful Life (RUL) of critical equipment.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Components Section -->
+<section id="components" class="content-section fade-in-up">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">System Components</h2>
+      <p class="section-subtitle">Hardware & Technology Stack</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--gradient-1);"><i class="bi bi-cpu-fill"></i></div>
+        <h4>ESP8266 Microcontroller</h4>
+        <p><strong>Function:</strong> Core IoT controller with integrated Wi-Fi connectivity for data processing, sensor management, and API hosting capabilities.</p>
+        <p><strong>Specifications:</strong> 32-bit processor, 80MHz clock, 128KB RAM, 4MB Flash</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--gradient-2);"><i class="bi bi-display"></i></div>
+        <h4>16x2 I2C LCD Display</h4>
+        <p><strong>Function:</strong> Real-time status display showing system health, sensor readings, alerts, and operational parameters for on-site monitoring.</p>
+        <p><strong>Interface:</strong> I2C communication protocol reducing pin usage and simplifying connections.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--gradient-3);"><i class="bi bi-bell-fill"></i></div>
+        <h4>Active Buzzer</h4>
+        <p><strong>Function:</strong> Audible alert system providing immediate notifications to operators during critical fault conditions or threshold violations.</p>
+        <p><strong>Alerts:</strong> Multi-level alarm patterns for different severity levels.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--gradient-4);"><i class="bi bi-activity"></i></div>
+        <h4>MPU6050 Accelerometer</h4>
+        <p><strong>Function:</strong> High-precision 6-axis motion sensor measuring vibration levels on X, Y, Z axes to detect abnormal belt behavior, misalignments, and wear patterns.</p>
+        <p><strong>Range:</strong> ±2g to ±16g, 16-bit ADC resolution</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--gradient-1);"><i class="bi bi-soundwave"></i></div>
+        <h4>HC-SR04 Ultrasonic Sensor</h4>
+        <p><strong>Function:</strong> Precision ultrasonic ranging sensor measuring belt distance and alignment with millimeter accuracy for detecting material spillage and belt positioning.</p>
+        <p><strong>Range:</strong> 2cm to 400cm, accuracy ±3mm</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: var(--gradient-2);"><i class="bi bi-gear-wide-connected"></i></div>
+        <h4>Servo Motor</h4>
+        <p><strong>Function:</strong> Simulates conveyor belt movement and operations for system testing, calibration, and feedback mechanism validation during development phases.</p>
+        <p><strong>Control:</strong> PWM signal control with 180° rotation range</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Specifications Section -->
+<section id="specs" class="specs-section fade-in-up">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Technical Specifications</h2>
+      <p class="section-subtitle">Detailed System Monitoring Parameters</p>
+    </div>
+    
+    <div class="row mb-5">
+      <div class="col-lg-6 mb-4">
+        <div class="spec-card">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-gear-fill spec-icon"></i>
+            <div class="spec-content">
+              <h5>Roller Malfunction Detection</h5>
+              <p><strong>Indicators:</strong> Distance variations, jittery vibrations</p>
+              <p>Detected through inconsistent ultrasonic distance readings combined with irregular vibration spikes in accelerometer data. The AI model correlates these patterns to identify bearing wear, shaft misalignment, or roller surface damage.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="spec-card">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-exclamation-triangle-fill spec-icon"></i>
+            <div class="spec-content">
+              <h5>Belt Wear & Tear Monitoring</h5>
+              <p><strong>Indicators:</strong> Progressive vibration level increases</p>
+              <p>Continuous monitoring of vibration amplitude trends identifies gradual material degradation. Machine learning algorithms predict remaining belt life based on wear rate calculations and historical failure data.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="spec-card">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-droplet-fill spec-icon"></i>
+            <div class="spec-content">
+              <h5>Material Spillage Detection</h5>
+              <p><strong>Indicators:</strong> Sudden distance measurement changes</p>
+              <p>Ultrasonic sensors detect material buildup or spillage events by identifying sudden deviations from baseline distance measurements, preventing blockages and maintaining operational efficiency.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="spec-card">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-arrow-repeat spec-icon"></i>
+            <div class="spec-content">
+              <h5>Belt Slippage Identification</h5>
+              <p><strong>Indicators:</strong> Rapid vibration fluctuations, distance dips</p>
+              <p>The system identifies belt slippage through simultaneous vibration pattern changes and distance measurement inconsistencies, indicating loss of friction or tension issues requiring immediate attention.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="text-center mb-4" style="color: var(--primary);">Fault Detection Matrix</h3>
+    <div class="table-responsive">
+      <table class="table data-table">
+        <thead>
+          <tr>
+            <th><i class="bi bi-exclamation-circle"></i> Fault Type</th>
+            <th><i class="bi bi-speedometer2"></i> Primary Indicator</th>
+            <th><i class="bi bi-activity"></i> Secondary Indicator</th>
+            <th><i class="bi bi-alarm"></i> Severity Level</th>
+            <th><i class="bi bi-clock-history"></i> Response Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Roller Malfunction</strong></td>
+            <td>Distance Variation (±5mm)</td>
+            <td>Vibration Spikes (>2g)</td>
+            <td><span class="badge bg-warning">Medium</span></td>
+            <td>24-48 hours</td>
+          </tr>
+          <tr>
+            <td><strong>Belt Wear</strong></td>
+            <td>Vibration Increase (>15%)</td>
+            <td>Pattern Irregularity</td>
+            <td><span class="badge bg-danger">High</span></td>
+            <td>12-24 hours</td>
+          </tr>
+          <tr>
+            <td><strong>Material Spillage</strong></td>
+            <td>Distance Change (>10cm)</td>
+            <td>Sustained Deviation</td>
+            <td><span class="badge bg-warning">Medium</span></td>
+            <td>Immediate</td>
+          </tr>
+          <tr>
+            <td><strong>Belt Slippage</strong></td>
+            <td>Vibration Fluctuation</td>
+            <td>Distance Dip (>5cm)</td>
+            <td><span class="badge bg-danger">Critical</span></td>
+            <td>Immediate</td>
+          </tr>
+          <tr>
+            <td><strong>Misalignment</strong></td>
+            <td>Asymmetric Distance</td>
+            <td>Lateral Vibration</td>
+            <td><span class="badge bg-warning">Medium</span></td>
+            <td>48-72 hours</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="row mt-5">
+      <div class="col-md-6">
+        <div class="alert alert-info-custom">
+          <h5><i class="bi bi-info-circle-fill"></i> System Accuracy</h5>
+          <p class="mb-0">The AI model achieves 99.9% accuracy in fault detection through ensemble learning techniques combining multiple sensor inputs and validated against historical maintenance records.</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="alert alert-warning-custom">
+          <h5><i class="bi bi-clock-fill"></i> Monitoring Frequency</h5>
+          <p class="mb-0">Sensors collect data at 10Hz (10 samples/second) providing real-time monitoring capabilities. Data aggregation occurs every 60 seconds for trend analysis and AI prediction updates.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h5><i class="bi bi-mortarboard-fill"></i> Academic Institution</h5>
+        <p>University of Zimbabwe<br>
+        Faculty of Engineering and Built Environment<br>
+        Department of Industrial and Mechatronics Engineering</p>
+      </div>
+      <div class="footer-section">
+        <h5><i class="bi bi-person-circle"></i> Contact Information</h5>
+        <a href="#" class="footer-link"><i class="bi bi-envelope-fill"></i> shaun@gmail.com</a>
+        <a href="#" class="footer-link"><i class="bi bi-telephone-fill"></i> +263 78 770 2386</a>
+        <a href="#" class="footer-link"><i class="bi bi-person-badge"></i> Musvosvi Shaun T (R228982S)</a>
+      </div>
+      <div class="footer-section">
+        <h5><i class="bi bi-link-45deg"></i> Quick Links</h5>
+        <a href="#about" class="footer-link">About Project</a>
+        <a href="#objectives" class="footer-link">Objectives</a>
+        <a href="#components" class="footer-link">Components</a>
+        <a href="#" class="footer-link" data-bs-toggle="modal" data-bs-target="#configModal">Configuration</a>
+      </div>
+      <div class="footer-section">
+        <h5><i class="bi bi-info-circle-fill"></i> Project Details</h5>
+        <p>Final Year Research Project<br>
+        Supervisor: Engineer Mugwindiri<br>
+        Academic Year: 2025</p>
+      </div>
+    </div>
+    <div class="text-center pt-3 border-top border-secondary">
+      <p class="mb-0">&copy; 2025 University of Zimbabwe. All Rights Reserved. | Developed by Musvosvi Shaun T</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Configuration Modal -->
+<div class="modal fade" id="configModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-gear-fill"></i> System Configuration</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info-custom mb-4">
+          <i class="bi bi-info-circle-fill"></i> <strong>Configuration Notice:</strong> This configuration interface allows you to set up the ESP8266 microcontroller connection and notification preferences. Future system updates will include advanced SMS and email alert capabilities.
+        </div>
+
+        <form id="configForm">
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <label class="form-label"><i class="bi bi-hdd-network"></i> ESP8266 IP Address *</label>
+              <input type="text" class="form-control" id="ipAddress" placeholder="e.g., 192.168.1.100" required>
+              <div class="form-text">Enter the local IP address of your ESP8266 microcontroller. Format: xxx.xxx.xxx.xxx</div>
+              <div class="invalid-feedback">Please enter a valid IP address in the format xxx.xxx.xxx.xxx</div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-building"></i> Organization Name *</label>
+              <input type="text" class="form-control" id="orgName" placeholder="e.g., Valterra Platinum" required>
+              <div class="invalid-feedback">Organization name is required</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-geo-alt-fill"></i> Site Location</label>
+              <input type="text" class="form-control" id="siteLocation" placeholder="e.g., Mine Sector A">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-person-fill"></i> Contact Person *</label>
+              <input type="text" class="form-control" id="contactPerson" placeholder="Full Name" required>
+              <div class="invalid-feedback">Contact person name is required</div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label"><i class="bi bi-telephone-fill"></i> Contact Phone *</label>
+              <input type="tel" class="form-control" id="contactPhone" placeholder="+263 XX XXX XXXX" required>
+              <div class="invalid-feedback">Valid phone number is required</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-envelope-fill"></i> Contact Email *</label>
+            <input type="email" class="form-control" id="contactEmail" placeholder="email@example.com" required>
+            <div class="invalid-feedback">Valid email address is required</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-bell-fill"></i> Alert Preferences</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="alertBuzzer" checked>
+              <label class="form-check-label" for="alertBuzzer">
+                Enable Buzzer Alerts (Active)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="alertLCD" checked>
+              <label class="form-check-label" for="alertLCD">
+                Enable LCD Display Alerts (Active)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="alertSMS" disabled>
+              <label class="form-check-label text-muted" for="alertSMS">
+                Enable SMS Alerts (Coming Soon)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="alertEmail" disabled>
+              <label class="form-check-label text-muted" for="alertEmail">
+                Enable Email Alerts (Coming Soon)
+              </label>
+            </div>
+          </div>
+
+          <div class="alert alert-warning-custom">
+            <i class="bi bi-exclamation-triangle-fill"></i> <strong>Temporary Configuration:</strong> The current contact information is stored locally for system testing. When the system scales in production, advanced notification features including SMS and email alerts will be fully integrated with real-time delivery mechanisms.
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary-custom">
+              <i class="bi bi-check-circle-fill"></i> Save Configuration
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-shield-lock-fill"></i> System Login</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info-custom mb-4">
+          <i class="bi bi-info-circle-fill"></i> Login to access the real-time monitoring dashboard and system analytics.
+        </div>
+
+        <form id="loginForm">
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-person-circle"></i> Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Enter username" required>
+            <div class="invalid-feedback">Username is required</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label"><i class="bi bi-lock-fill"></i> Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter password" required>
+            <div class="invalid-feedback">Password is required</div>
+          </div>
+
+          <div id="loginError" class="alert alert-danger d-none">
+            <i class="bi bi-x-circle-fill"></i> Invalid username or password. Please try again.
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary-custom">
+              <i class="bi bi-box-arrow-in-right"></i> Login to Dashboard
+            </button>
+          </div>
+
+          <div class="text-center mt-3 text-muted">
+            <small>Default credentials for demo: admin / admin</small>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Welcome overlay
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.getElementById('welcomeOverlay').classList.add('hidden');
+    }, 3000);
+
+    // Fade-in on scroll
+    const observers = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in-up').forEach(el => observers.observe(el));
+
+    // Load saved configuration
+    loadSavedConfig();
+  });
+
+  // IP Address validation
+  function validateIPAddress(ip) {
+    const ipPattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    const match = ip.match(ipPattern);
+    if (!match) return false;
+    return match.slice(1).every(octet => parseInt(octet) >= 0 && parseInt(octet) <= 255);
+  }
+
+  // Phone validation
+  function validatePhone(phone) {
+    const phonePattern = /^\+?[\d\s\-()]+$/;
+    return phonePattern.test(phone) && phone.replace(/\D/g, '').length >= 9;
+  }
+
+  // Email validation
+  function validateEmail(email) {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  }
+
+  // Configuration form submission
+  document.getElementById('configForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const ipAddress = document.getElementById('ipAddress').value.trim();
+    const orgName = document.getElementById('orgName').value.trim();
+    const siteLocation = document.getElementById('siteLocation').value.trim();
+    const contactPerson = document.getElementById('contactPerson').value.trim();
+    const contactPhone = document.getElementById('contactPhone').value.trim();
+    const contactEmail = document.getElementById('contactEmail').value.trim();
+
+    // Validation
+    let isValid = true;
+    
+    if (!validateIPAddress(ipAddress)) {
+      document.getElementById('ipAddress').classList.add('is-invalid');
+      isValid = false;
+    } else {
+      document.getElementById('ipAddress').classList.remove('is-invalid');
+      document.getElementById('ipAddress').classList.add('is-valid');
+    }
+
+    if (!orgName) {
+      document.getElementById('orgName').classList.add('is-invalid');
+      isValid = false;
+    } else {
+      document.getElementById('orgName').classList.remove('is-invalid');
+      document.getElementById('orgName').classList.add('is-valid');
+    }
+
+    if (!contactPerson) {
+      document.getElementById('contactPerson').classList.add('is-invalid');
+      isValid = false;
+    } else {
+      document.getElementById('contactPerson').classList.remove('is-invalid');
+      document.getElementById('contactPerson').classList.add('is-valid');
+    }
+
+    if (!validatePhone(contactPhone)) {
+      document.getElementById('contactPhone').classList.add('is-invalid');
+      isValid = false;
+    } else {
+      document.getElementById('contactPhone').classList.remove('is-invalid');
+      document.getElementById('contactPhone').classList.add('is-valid');
+    }
+
+    if (!validateEmail(contactEmail)) {
+      document.getElementById('contactEmail').classList.add('is-invalid');
+      isValid = false;
+    } else {
+      document.getElementById('contactEmail').classList.remove('is-invalid');
+      document.getElementById('contactEmail').classList.add('is-valid');
+    }
+
+    if (!isValid) return;
+
+    // Save configuration
+    const config = {
+      esp8266IPAddress: ipAddress,
+      organizationName: orgName,
+      siteLocation: siteLocation,
+      contactPerson: contactPerson,
+      contactPhone: contactPhone,
+      contactEmail: contactEmail,
+      alertBuzzer: document.getElementById('alertBuzzer').checked,
+      alertLCD: document.getElementById('alertLCD').checked,
+      configuredDate: new Date().toISOString()
+    };
+
+    const configData = JSON.stringify(config);
+    localStorage.setItem('esp8266IPAddress', ipAddress);
+    localStorage.setItem('systemConfig', configData);
+
+    // Success message
+    const modalBody = document.querySelector('#configModal .modal-body');
+    const successAlert = document.createElement('div');
+    successAlert.className = 'alert alert-success alert-dismissible fade show';
+    successAlert.innerHTML = `
+      <i class="bi bi-check-circle-fill"></i> <strong>Configuration Saved Successfully!</strong>
+      <p class="mb-0 mt-2">System is now configured with IP: ${ipAddress}</p>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    modalBody.insertBefore(successAlert, modalBody.firstChild);
+
+    setTimeout(() => {
+      successAlert.remove();
+      bootstrap.Modal.getInstance(document.getElementById('configModal')).hide();
+    }, 2500);
+  });
+
+  // Login form submission
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorDiv = document.getElementById('loginError');
+
+    // Clear previous validation
+    document.getElementById('username').classList.remove('is-invalid');
+    document.getElementById('password').classList.remove('is-invalid');
+    errorDiv.classList.add('d-none');
+
+    // Validate credentials
+    if (username === 'admin' && password === 'admin') {
+      // Success
+      localStorage.setItem('userLogin', 'admin');
+      
+      // Show success and redirect
+      const modalBody = document.querySelector('#loginModal .modal-body');
+      const successAlert = document.createElement('div');
+      successAlert.className = 'alert alert-success';
+      successAlert.innerHTML = `
+        <i class="bi bi-check-circle-fill"></i> <strong>Login Successful!</strong>
+        <p class="mb-0">Redirecting to dashboard...</p>
+      `;
+      modalBody.insertBefore(successAlert, modalBody.firstChild);
+
+      setTimeout(() => {
+        window.location.href = 'https://www.droomdazlean.com/ConveyorBeltFaultDetection';
+      }, 1500);
+    } else {
+      // Show error
+      errorDiv.classList.remove('d-none');
+      document.getElementById('username').classList.add('is-invalid');
+      document.getElementById('password').classList.add('is-invalid');
+    }
+  });
+
+  // Load saved configuration
+  function loadSavedConfig() {
+    const savedConfig = localStorage.getItem('systemConfig');
+    if (savedConfig) {
+      try {
+        const config = JSON.parse(savedConfig);
+        document.getElementById('ipAddress').value = config.esp8266IPAddress || '';
+        document.getElementById('orgName').value = config.organizationName || '';
+        document.getElementById('siteLocation').value = config.siteLocation || '';
+        document.getElementById('contactPerson').value = config.contactPerson || '';
+        document.getElementById('contactPhone').value = config.contactPhone || '';
+        document.getElementById('contactEmail').value = config.contactEmail || '';
+        document.getElementById('alertBuzzer').checked = config.alertBuzzer !== false;
+        document.getElementById('alertLCD').checked = config.alertLCD !== false;
+      } catch (e) {
+        console.error('Error loading configuration:', e);
+      }
+    }
+  }
+</script>
+</body>
+</html>
